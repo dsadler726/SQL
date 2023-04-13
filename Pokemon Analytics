@@ -1,0 +1,144 @@
+/*
+  For this project I utilized the sixth generation pokemon data to analyze pokemon stats to build competitive pokemon from a selection of over 800 pokemon
+  
+  The dataset and table can be found here:
+  https://gist.github.com/pamelafox/26b9357c6120d3d0d27c2b90c950e8c6
+*/
+
+# Selects the main types and displays the number ok pokemon that belong to it, like how there are 32 pokemon that have the main typing of Dragon.
+Select Count(*) As total_pokemon, type_1 As main_type from pokemon
+    Group By type_1
+    Order By total_pokemon DESC;
+
+# Displays all attributes, showing the lowest stat, the average, and the highest of each one
+Select 
+    Min(HP) As health, 
+    Min(Attack) As attack, 
+    Min(Defense) As defense, 
+    Min(Sp_Atk) As Sp_Atk, 
+    Min(Sp_Def) As Sp_Def, 
+    Min(Speed) As Speed
+From pokemon
+Union
+Select 
+    Round(AVG(HP)), 
+    Round(AVG(Attack)), 
+    Round(AVG(Defense)), 
+    Round(AVG(Sp_Atk)), 
+    Round(AVG(Sp_Def)), 
+    Round(AVG(Speed))
+From pokemon
+Union
+Select 
+    Max(HP),
+    Max(Attack),
+    Max(Defense),
+    Max(Sp_Atk),
+    Max(Sp_Def),
+    Max(Speed)
+From pokemon;
+
+# The Next Queries Display pokemon with the Minimum and Maximum in the attribute and the generation they are from
+
+# Min / Max Health Points
+Select name, HP, generation from pokemon
+Where HP = (Select Min(HP) from pokemon) Or HP = (Select Max(HP) from pokemon)
+Order By HP;
+
+# Min / Max Attack Stat
+Select name, Attack, generation From pokemon
+Where Attack = (Select Min(Attack) from pokemon) Or Attack = (Select Max(Attack) From pokemon)
+Order By Attack;
+
+# Min / Max Defense Stat
+Select name, Defense, generation from pokemon
+Where Defense = (Select Min(Defense) from pokemon) OR Defense = (Select Max(Defense) from pokemon)
+Order By Defense;
+
+# Min / Max SP_Attack Stat
+Select name, Sp_Atk, generation from pokemon
+Where Sp_Atk = (Select Min(Sp_Atk) from pokemon) OR Sp_Atk = (Select Max(Sp_Atk) from pokemon)
+Order by Sp_Atk;
+
+# Min / Max SP_Defense Stat
+Select name, Sp_Def, generation from pokemon
+Where Sp_Def = (Select Min(Sp_Def) from pokemon) OR Sp_Def = (Select Max(Sp_Def) from pokemon)
+Order by Sp_Def;
+
+# Min / Max Speed Stat
+Select name, Speed, generation from pokemon
+Where Speed = (Select Min(Speed) from pokemon) OR Speed = (Select Max(Speed) from pokemon)
+Order by Speed;
+
+# The following 2 Queries pull information from the set about the special legendary pokemon from the games
+
+# Pulls all the Legendary and counts them, catagorized by main type
+Select type_1 As main_type, Count(*) As total_legends from pokemon
+Where Legendary = 'True'
+Group By type_1;
+
+# Pulls the Count of Legendaries from each generation
+Select Generation As Gen, Count(*) As num_legends from pokemon
+Where Legendary = 'True'
+Group By Generation
+Order By Gen;
+    
+# Above Average Attack by Main Type
+Select type_1 As main_type, Round(Avg(Attack)) As average_attack from pokemon
+Group By type_1
+Having average_attack > 79;
+
+# Above Average Special Attack by Main Type
+Select type_1 As main_type, Round(Avg(Sp_Atk)) As average_Sp_attack from pokemon
+Group By type_1
+Having average_Sp_attack > 79;
+
+# Displays a pokemon's strengths, where to specialize
+Select name,
+	Case
+		When Attack < Sp_Atk Then 'Sp_Atk'
+    When Attack > Sp_Atk Then 'Attack'
+    Else 'Equal'
+	End As Offense,
+  Case
+		When Defense < Sp_Def Then 'Sp_Def'
+    When Defense > Sp_Def Then 'Defense'
+    Else 'Equal'
+	End As Defense
+From pokemon;
+
+# Displays what a pokemons states are compared to the average
+Select name,
+	Case
+		When HP < 69 Then 'Below Ave'
+    When HP > 69 Then 'Above Ave'
+    Else 'Average'
+	End As Health,
+  Case
+		When Attack < 79 Then 'Below Ave'
+    When Attack > 79 Then 'Above Ave'
+    Else 'Average'
+	End As Attack,
+    Case
+		When Sp_Atk < 73 Then 'Below Ave'
+    When Sp_Atk > 73 Then 'Above Ave'
+    Else 'Average'
+	End As Sp_Atk,
+  Case
+		When Defense < 74 Then 'Below Ave'
+    When Defense > 74 Then 'Above Ave'
+    Else 'Average'
+	End As Defense,
+  Case
+		When Sp_Def < 72 Then 'Below Ave'
+    When Sp_Def > 72 Then 'Above Ave'
+    Else 'Average'
+	End As Sp_Def,
+  Case
+		When Speed < 68 Then 'Below Ave'
+    When Speed > 68 Then 'Above Ave'
+    Else 'Average'
+	End As Speed
+From pokemon
+Order By Number;
+
